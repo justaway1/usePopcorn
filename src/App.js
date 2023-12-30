@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const tempMovieData = [
   {
@@ -50,9 +50,29 @@ const tempWatchedData = [
 const average = arr =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0)
 
+const KEY = '7c7fc499'
+
 export default function App () {
-  const [movies, setMovies] = useState(tempMovieData)
-  const [watched, setWatched] = useState(tempWatchedData)
+  const [movies, setMovies] = useState([])
+  const [watched, setWatched] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    async function fetchMovies () {
+      setIsLoading(true)
+      try {
+        const response = await fetch(
+          `http://www.omdbapi.com/?apikey=${KEY}&s=Star Wars`
+        )
+        const data = await response.json()
+        setMovies(data.Search)
+      } catch (error) {
+        console.log(error)
+      }
+      setIsLoading(false)
+    }
+    fetchMovies()
+  }, [])
 
   return (
     <>
@@ -62,9 +82,7 @@ export default function App () {
         <NumResults movies={movies} />
       </Nav>
       <main className='main'>
-        <Box>
-          <MovieList movies={movies} />
-        </Box>
+        <Box>{isLoading ? <Loader /> : <MovieList movies={movies} />}</Box>
 
         <Box>
           <Summary watched={watched} />
@@ -73,6 +91,10 @@ export default function App () {
       </main>
     </>
   )
+}
+
+function Loader () {
+  return <p className='loader'>Loading...</p>
 }
 function Logo () {
   return (
