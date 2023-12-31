@@ -56,33 +56,53 @@ export default function App () {
   const [movies, setMovies] = useState([])
   const [watched, setWatched] = useState([])
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [query, setQuery] = useState('')
 
   useEffect(() => {
     async function fetchMovies () {
       setIsLoading(true)
+      setError('')
+
       try {
-        const response = await fetch(
-          `http://www.omdbapi.com/?apikey=${KEY}&s=Star Wars`
+        const res = await fetch(
+          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
         )
-        const data = await response.json()
+
+        if (!res.ok) throw new Error('Something went wrong!')
+
+        const data = await res.json()
+
+        if (data.Response === 'False') throw new Error(data.Error)
         setMovies(data.Search)
       } catch (error) {
-        console.log(error)
+        console.error(error.message)
+        setError(error.message)
       }
       setIsLoading(false)
     }
+    if (query.length < 3) {
+      setMovies([])
+      setError('')
+      return
+    }
+
     fetchMovies()
-  }, [])
+  }, [query])
 
   return (
     <>
       <Nav>
         <Logo />
-        <Search />
+        <Search query={query} setQuery={setQuery} />
         <NumResults movies={movies} />
       </Nav>
       <main className='main'>
-        <Box>{isLoading ? <Loader /> : <MovieList movies={movies} />}</Box>
+        <Box>
+          {isLoading && <Loader />}
+          {!isLoading && !error && <MovieList movies={movies} />}
+          {error && <ErrorMessage message={error} />}
+        </Box>
 
         <Box>
           <Summary watched={watched} />
@@ -90,6 +110,15 @@ export default function App () {
         </Box>
       </main>
     </>
+  )
+}
+
+function ErrorMessage ({ message }) {
+  return (
+    <p className='error'>
+      <span>⛔</span>
+      {message}
+    </p>
   )
 }
 
@@ -105,9 +134,7 @@ function Logo () {
   )
 }
 
-function Search () {
-  const [query, setQuery] = useState('')
-
+function Search ({ query, setQuery }) {
   return (
     <input
       className='search'
