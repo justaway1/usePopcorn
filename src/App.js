@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import StarRating from './StarRating'
 
 const tempMovieData = [
   {
@@ -58,6 +59,15 @@ export default function App () {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [query, setQuery] = useState('')
+  const [selectedId, setSelectedId] = useState(null)
+
+  function handleSelectedMovie (id) {
+    setSelectedId(selectedId => (selectedId === id ? null : id))
+  }
+
+  function handleCloseMovie () {
+    setSelectedId(null)
+  }
 
   useEffect(() => {
     async function fetchMovies () {
@@ -100,13 +110,27 @@ export default function App () {
       <main className='main'>
         <Box>
           {isLoading && <Loader />}
-          {!isLoading && !error && <MovieList movies={movies} />}
+          {!isLoading && !error && (
+            <MovieList
+              movies={movies}
+              onHandleSelectedMovie={handleSelectedMovie}
+            />
+          )}
           {error && <ErrorMessage message={error} />}
         </Box>
 
         <Box>
-          <Summary watched={watched} />
-          <WatchedMovieList watched={watched} />
+          {selectedId ? (
+            <MovieDetails
+              selectedId={selectedId}
+              onHandleCloseMovie={handleCloseMovie}
+            />
+          ) : (
+            <>
+              <Summary watched={watched} />
+              <WatchedMovieList watched={watched} />
+            </>
+          )}
         </Box>
       </main>
     </>
@@ -170,19 +194,23 @@ function Box ({ children }) {
   )
 }
 
-function MovieList ({ movies }) {
+function MovieList ({ movies, onHandleSelectedMovie }) {
   return (
-    <ul className='list'>
+    <ul className='list list-movies'>
       {movies.map(movie => (
-        <Movie movies={movie} key={movie.imdbID} />
+        <Movie
+          movies={movie}
+          key={movie.imdbID}
+          onHandleSelectedMovie={onHandleSelectedMovie}
+        />
       ))}
     </ul>
   )
 }
 
-function Movie ({ movies }) {
+function Movie ({ movies, onHandleSelectedMovie }) {
   return (
-    <li>
+    <li onClick={() => onHandleSelectedMovie(movies.imdbID)}>
       <img src={movies.Poster} alt={`${movies.Title} poster`} />
       <h3>{movies.Title}</h3>
       <div>
@@ -221,6 +249,69 @@ function Summary ({ watched }) {
           <span>{avgRuntime} min</span>
         </p>
       </div>
+    </div>
+  )
+}
+
+function MovieDetails ({ selectedId, onHandleCloseMovie }) {
+  const [movie, setMovie] = useState({})
+  const [isLoading, setIsLoading] = useState(false)
+  const {
+    Year: year,
+    Title: title,
+    Poster: poster,
+    Plot: plot,
+    Runtime: runtime,
+    imdbRating,
+    Released: released,
+    Genre: genre,
+    Actors: actors,
+    Director: director
+  } = movie
+  useEffect(() => {
+    async function fetchMovieDetails () {
+      setIsLoading(true)
+      const res = await fetch(
+        `http://www.omdbapi.com/?apikey=${KEY}&i=${selectedId}`
+      )
+      const data = await res.json()
+      setMovie(data)
+      setIsLoading(false)
+    }
+    fetchMovieDetails()
+  }, [selectedId])
+  return (
+    <div className='details'>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <>
+          <header>
+            <button className='btn-back' onClick={onHandleCloseMovie}>
+              &larr;
+            </button>
+            <img src={poster} alt={`Poster of the ${movie} movie`} />
+            <div className='details-overview'>
+              <h2>{title}</h2>
+              <p>
+                {released} &bull; {runtime}
+              </p>
+              <p>{genre}</p>
+              <span>⭐{imdbRating} IMDb Rating</span>
+            </div>
+          </header>
+          <section>
+            <div className='rating'>
+              <StarRating maxRating={10} size={24} color='yellow' />
+            </div>
+            <p>
+              <em>{plot}</em>
+            </p>
+            <p>Starring {actors}</p>
+            <p>Directed by {director}</p>
+          </section>
+        </>
+      )}
     </div>
   )
 }
