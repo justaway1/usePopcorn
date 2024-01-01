@@ -99,9 +99,3 @@ function Star ({ handleRating, full, onMouseIn, onMouseOut, color, size }) {
     </span>
   )
 }
-
-/*
-
-
-
-*/
