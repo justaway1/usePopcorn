@@ -255,12 +255,16 @@ function MovieDetails ({
       imdbRating: Number(imdbRating),
       runtime: Number(runtime.split(' ').at(0))
     }
-    console.log(userRating)
 
     onAddWatched(watchedMovie)
 
     onHandleCloseMovie()
   }
+
+  useEffect(() => {
+    if (!title) return
+    document.title = `Movie | ${title}`
+  }, [title])
 
   useEffect(() => {
     async function fetchMovieDetails () {
