@@ -8,10 +8,12 @@ const KEY = '7c7fc499'
 
 export default function App () {
   const [movies, setMovies] = useState([])
-  const [watched, setWatched] = useState([])
+  const [watched, setWatched] = useState(() =>
+    JSON.parse(localStorage.getItem('watched'))
+  )
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-  const [query, setQuery] = useState('inception')
+  const [query, setQuery] = useState('')
   const [selectedId, setSelectedId] = useState(null)
 
   function handleSelectedMovie (id) {
@@ -29,6 +31,10 @@ export default function App () {
   function handleDeleteMovies (id) {
     setWatched(watchedMovies => watchedMovies.filter(m => m.imdbID !== id))
   }
+
+  useEffect(() => {
+    localStorage.setItem('watched', JSON.stringify(watched))
+  }, [watched])
 
   useEffect(() => {
     const controller = new AbortController()
