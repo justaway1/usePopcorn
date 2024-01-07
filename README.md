@@ -1,6 +1,7 @@
 # Movie Search App
 
 This application allows you to search for movies using the OMDB API. You can rate movies and add them to your favorites.
+Live Preview (https://justaway1.github.io/usePopcorn/)[Live]
 
 ## Features
 
