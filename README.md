@@ -7,7 +7,6 @@ This application allows you to search for movies using the OMDB API. You can rat
 - **Search:** Look for movies using the search bar.
 - **Movie Details:** Click on a movie to view its details, including plot, cast, director, and IMDb rating.
 - **Rating:** Rate movies and add them to your watched list.
-- **Favorites:** Add movies to your favorites list.
 - **Summary:** Get a summary of the movies you've watched, including IMDb rating, user rating, and runtime.
 
 ## How to Use
@@ -15,7 +14,6 @@ This application allows you to search for movies using the OMDB API. You can rat
 1. **Search for Movies:** Enter a movie title in the search bar to find movies.
 2. **View Movie Details:** Click on a movie to see its details.
 3. **Rate and Add to Watched List:** Rate the movie and add it to your watched list.
-4. **Add to Favorites:** Add movies to your favorites list.
 
 ## Tech Stack
 
